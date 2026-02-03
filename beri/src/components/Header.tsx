@@ -6,11 +6,13 @@ interface Props {
  * Application header with logo and status
  */
 export function Header({ isReady }: Props) {
+  const logoUrl = `${import.meta.env.BASE_URL}beri-logo.svg`
+
   return (
     <header className="bg-habs-navy border-b border-habs-navy-light px-4 py-3 flex items-center justify-between">
       <div className="flex items-center gap-3">
         <img
-          src="/beri-logo.svg"
+          src={logoUrl}
           alt="BERI Logo"
           className="w-10 h-10"
           onError={(e) => {

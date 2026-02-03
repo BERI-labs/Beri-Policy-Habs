@@ -10,14 +10,15 @@ interface Props {
  */
 export function LoadingScreen({ loadingState, onRetry }: Props) {
   const isError = loadingState.stage === 'error'
+  const logoUrl = `${import.meta.env.BASE_URL}beri-logo.svg`
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-habs-navy to-habs-navy-dark flex flex-col items-center justify-center p-6">
       <div className="w-full max-w-md text-center">
-        {/* Logo placeholder */}
+        {/* Logo */}
         <div className="mb-8">
           <img
-            src="/beri-logo.svg"
+            src={logoUrl}
             alt="BERI Logo"
             className="w-24 h-24 mx-auto mb-4"
             onError={(e) => {

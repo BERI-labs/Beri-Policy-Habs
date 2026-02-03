@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react'
-import type { Message, LoadingState, MessageSource } from '@/types'
+import type { Message, LoadingState, MessageSource, ContextChunk } from '@/types'
 import { SYSTEM_PROMPT } from '@/lib/constants'
 import { initStorage, loadChunksFromJSON, hasChunks } from '@/lib/storage'
 import { initEmbeddings, embed } from '@/lib/embeddings'
@@ -184,6 +184,14 @@ function App() {
       const context = formatContext(chunks)
       const sources: MessageSource[] = extractSources(chunks)
 
+      // Extract context chunks for display (top 2)
+      const contextChunks: ContextChunk[] = chunks.slice(0, 2).map((chunk) => ({
+        content: chunk.content,
+        source: chunk.metadata.source,
+        section: chunk.metadata.section,
+        score: chunk.score,
+      }))
+
       console.log('Retrieved chunks:', chunks.length, 'Context length:', context.length)
 
       // Generate response with streaming
@@ -200,11 +208,11 @@ function App() {
         )
       })
 
-      // Finalise message with sources
+      // Finalise message with sources and context chunks
       setMessages((prev) =>
         prev.map((msg) =>
           msg.id === assistantMessage.id
-            ? { ...msg, content: fullResponse, sources, isStreaming: false }
+            ? { ...msg, content: fullResponse, sources, contextChunks, isStreaming: false }
             : msg
         )
       )

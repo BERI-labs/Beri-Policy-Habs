@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import type { Message } from '@/types'
 
 interface Props {
@@ -9,6 +10,7 @@ interface Props {
  */
 export function MessageBubble({ message }: Props) {
   const isUser = message.role === 'user'
+  const [showContext, setShowContext] = useState(false)
   const formattedTime = message.timestamp.toLocaleTimeString('en-GB', {
     hour: '2-digit',
     minute: '2-digit',
@@ -53,6 +55,49 @@ export function MessageBubble({ message }: Props) {
                 </li>
               ))}
             </ul>
+          </div>
+        )}
+
+        {/* Context chunks toggle (for assistant messages) */}
+        {!isUser && message.contextChunks && message.contextChunks.length > 0 && !message.isStreaming && (
+          <div className="mt-3 pt-3 border-t border-gray-200">
+            <button
+              onClick={() => setShowContext(!showContext)}
+              className="text-xs font-semibold text-habs-navy/60 hover:text-habs-navy transition-colors flex items-center gap-1"
+            >
+              <svg
+                className={`w-3 h-3 transition-transform ${showContext ? 'rotate-90' : ''}`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+              View context used ({message.contextChunks.length} chunks)
+            </button>
+
+            {showContext && (
+              <div className="mt-2 space-y-3">
+                {message.contextChunks.map((chunk, index) => (
+                  <div
+                    key={index}
+                    className="bg-gray-50 rounded-lg p-3 border border-gray-200"
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-semibold text-habs-navy">
+                        {chunk.source} — {chunk.section}
+                      </span>
+                      <span className="text-xs text-gray-400">
+                        {(chunk.score * 100).toFixed(0)}% match
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-600 whitespace-pre-wrap">
+                      {chunk.content}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 

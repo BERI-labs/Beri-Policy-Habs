@@ -28,6 +28,14 @@ export interface MessageSource {
   section: string
 }
 
+/** Context chunk shown to user */
+export interface ContextChunk {
+  content: string
+  source: string
+  section: string
+  score: number
+}
+
 /** A chat message */
 export interface Message {
   id: string
@@ -35,6 +43,7 @@ export interface Message {
   content: string
   timestamp: Date
   sources?: MessageSource[]
+  contextChunks?: ContextChunk[]
   isStreaming?: boolean
 }
 
