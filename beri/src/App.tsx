@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from 'react'
 import type { Message, LoadingState, MessageSource } from '@/types'
 import { SYSTEM_PROMPT } from '@/lib/constants'
 import { initStorage, loadChunksFromJSON, hasChunks } from '@/lib/storage'
-import { initEmbeddings } from '@/lib/embeddings'
+import { initEmbeddings, embed } from '@/lib/embeddings'
 import { checkWebGPU, initLLM, generate } from '@/lib/llm'
 import { retrieveContext, formatContext, extractSources } from '@/lib/retrieval'
 import { LoadingScreen } from '@/components/LoadingScreen'
@@ -59,24 +59,10 @@ function App() {
 
         if (cancelled) return
 
-        // Step 3: Load chunks
-        setLoadingState({
-          stage: 'chunks',
-          progress: 15,
-          message: 'Loading policy data...',
-        })
-
-        const chunksLoaded = await hasChunks()
-        if (!chunksLoaded) {
-          await loadChunksFromJSON()
-        }
-
-        if (cancelled) return
-
-        // Step 4: Init embeddings
+        // Step 3: Init embeddings FIRST (needed for chunk embedding generation)
         setLoadingState({
           stage: 'embeddings',
-          progress: 20,
+          progress: 15,
           message: 'Loading embedding model...',
         })
 
@@ -84,7 +70,7 @@ function App() {
           if (!cancelled) {
             setLoadingState({
               stage: 'embeddings',
-              progress: 20 + Math.round(progress * 0.3), // 20-50%
+              progress: 15 + Math.round(progress * 0.25), // 15-40%
               message,
             })
           }
@@ -92,10 +78,33 @@ function App() {
 
         if (cancelled) return
 
+        // Step 4: Load chunks with real embeddings
+        const chunksLoaded = await hasChunks()
+        if (!chunksLoaded) {
+          setLoadingState({
+            stage: 'chunks',
+            progress: 40,
+            message: 'Generating policy embeddings...',
+          })
+
+          await loadChunksFromJSON(embed, (current, total) => {
+            if (!cancelled) {
+              const chunkProgress = 40 + Math.round((current / total) * 20) // 40-60%
+              setLoadingState({
+                stage: 'chunks',
+                progress: chunkProgress,
+                message: `Embedding policy ${current}/${total}...`,
+              })
+            }
+          })
+        }
+
+        if (cancelled) return
+
         // Step 5: Init LLM
         setLoadingState({
           stage: 'llm',
-          progress: 50,
+          progress: 60,
           message: 'Loading language model...',
         })
 
@@ -103,7 +112,7 @@ function App() {
           if (!cancelled) {
             setLoadingState({
               stage: 'llm',
-              progress: 50 + Math.round(progress * 0.5), // 50-100%
+              progress: 60 + Math.round(progress * 0.4), // 60-100%
               message,
             })
           }
@@ -174,6 +183,8 @@ function App() {
       const chunks = await retrieveContext(content)
       const context = formatContext(chunks)
       const sources: MessageSource[] = extractSources(chunks)
+
+      console.log('Retrieved chunks:', chunks.length, 'Context length:', context.length)
 
       // Generate response with streaming
       let fullResponse = ''

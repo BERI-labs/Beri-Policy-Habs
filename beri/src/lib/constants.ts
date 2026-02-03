@@ -7,12 +7,12 @@ export const EMBEDDING_MODEL = 'Xenova/all-MiniLM-L6-v2'
 export const LLM_MODEL = 'SmolLM2-360M-Instruct-q4f16_1-MLC'
 
 // Retrieval settings
-export const TOP_K_CHUNKS = 4
-export const SIMILARITY_THRESHOLD = 0.3
+export const TOP_K_CHUNKS = 3
+export const SIMILARITY_THRESHOLD = 0.2
 
 // Generation settings
-export const MAX_TOKENS = 512
-export const TEMPERATURE = 0.7
+export const MAX_TOKENS = 150
+export const TEMPERATURE = 0.3
 
 // IndexedDB settings
 export const DB_NAME = 'beri-db'
