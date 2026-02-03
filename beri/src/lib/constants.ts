@@ -4,7 +4,8 @@
 
 // Model identifiers
 export const EMBEDDING_MODEL = 'Xenova/all-MiniLM-L6-v2'
-export const LLM_MODEL = 'SmolLM2-360M-Instruct-q4f16_1-MLC'
+// Using f32 model for broader WebGPU compatibility (f16 requires shader-f16 extension)
+export const LLM_MODEL = 'SmolLM2-360M-Instruct-q0f32-MLC'
 
 // Retrieval settings
 export const TOP_K_CHUNKS = 3
