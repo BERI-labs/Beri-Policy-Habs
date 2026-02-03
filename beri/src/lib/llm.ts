@@ -67,7 +67,7 @@ export async function generate(
 
   // Simple, direct prompt format for small models
   // Putting everything in user message works better than system+user split
-  const prompt = `You are BERI, a school policy assistant. Answer the question using ONLY the information below. Be brief and cite the source.
+  const prompt = `You are BERI, a school policy assistant. Answer the question using ONLY the information below. Give a detailed and thorough answer, explaining the key points. Always cite the source policy.
 
 POLICY INFORMATION:
 ${context}

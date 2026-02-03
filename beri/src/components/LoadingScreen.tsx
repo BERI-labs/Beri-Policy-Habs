@@ -10,7 +10,7 @@ interface Props {
  */
 export function LoadingScreen({ loadingState, onRetry }: Props) {
   const isError = loadingState.stage === 'error'
-  const logoUrl = `${import.meta.env.BASE_URL}beri-logo.svg`
+  const logoUrl = `${import.meta.env.BASE_URL}beri-logo.png`
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-habs-navy to-habs-navy-dark flex flex-col items-center justify-center p-6">
@@ -20,13 +20,8 @@ export function LoadingScreen({ loadingState, onRetry }: Props) {
           <img
             src={logoUrl}
             alt="BERI Logo"
-            className="w-24 h-24 mx-auto mb-4"
-            onError={(e) => {
-              // Hide if logo not found
-              e.currentTarget.style.display = 'none'
-            }}
+            className="h-32 mx-auto mb-4"
           />
-          <h1 className="text-3xl font-bold text-white mb-2">BERI</h1>
           <p className="text-habs-gold text-sm">
             Bespoke Education Retrieval Infrastructure
           </p>

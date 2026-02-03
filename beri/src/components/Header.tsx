@@ -6,7 +6,7 @@ interface Props {
  * Application header with logo and status
  */
 export function Header({ isReady }: Props) {
-  const logoUrl = `${import.meta.env.BASE_URL}beri-logo.svg`
+  const logoUrl = `${import.meta.env.BASE_URL}beri-logo.png`
 
   return (
     <header className="bg-habs-navy border-b border-habs-navy-light px-4 py-3 flex items-center justify-between">
@@ -14,16 +14,8 @@ export function Header({ isReady }: Props) {
         <img
           src={logoUrl}
           alt="BERI Logo"
-          className="w-10 h-10"
-          onError={(e) => {
-            // Show fallback if logo not found
-            e.currentTarget.style.display = 'none'
-          }}
+          className="h-10"
         />
-        <div>
-          <h1 className="text-xl font-bold text-white">BERI</h1>
-          <p className="text-xs text-habs-gold">Policy Assistant</p>
-        </div>
       </div>
 
       {/* Status indicator */}
