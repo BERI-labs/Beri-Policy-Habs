@@ -12,7 +12,7 @@ export const TOP_K_CHUNKS = 3
 export const SIMILARITY_THRESHOLD = 0.2
 
 // Generation settings
-export const MAX_TOKENS = 800
+export const MAX_TOKENS = 450
 export const TEMPERATURE = 0.4
 
 // IndexedDB settings
