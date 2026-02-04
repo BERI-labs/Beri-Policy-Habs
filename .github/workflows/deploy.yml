@@ -2,7 +2,7 @@ name: Deploy BERI to GitHub Pages
 
 on:
   push:
-    branches: [ claude/build-beri-chatbot-1UA4D, main ]
+    branches: [ main ]
   workflow_dispatch:
 
 permissions:

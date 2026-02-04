@@ -4,7 +4,7 @@ import path from 'path'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/beri_trial2/',
+  base: '/BERI/',
   plugins: [react()],
   resolve: {
     alias: {
