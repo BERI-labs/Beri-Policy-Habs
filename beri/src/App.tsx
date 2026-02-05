@@ -5,6 +5,7 @@ import { initStorage, loadChunksFromJSON, hasChunks } from '@/lib/storage'
 import { initEmbeddings, embed } from '@/lib/embeddings'
 import { checkWebGPU, initLLM, generate } from '@/lib/llm'
 import { retrieveContext, formatContext, extractSources } from '@/lib/retrieval'
+import { getFAQResponse } from '@/lib/faq'
 import { LoadingScreen } from '@/components/LoadingScreen'
 import { Header } from '@/components/Header'
 import { ChatContainer } from '@/components/ChatContainer'
@@ -179,8 +180,31 @@ function App() {
     setIsStreaming(true)
 
     try {
-      // Retrieve relevant context
-      const chunks = await retrieveContext(content)
+      // First, get the query embedding for FAQ matching and retrieval
+      const queryEmbedding = await embed(content)
+
+      // Check FAQ cache first for instant responses
+      const faqResponse = getFAQResponse(queryEmbedding)
+      if (faqResponse) {
+        console.log('FAQ cache hit - returning instant response')
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === assistantMessage.id
+              ? {
+                  ...msg,
+                  content: faqResponse.answer,
+                  sources: faqResponse.sources,
+                  isStreaming: false,
+                }
+              : msg
+          )
+        )
+        return
+      }
+
+      // No FAQ match - proceed with full RAG pipeline
+      // Retrieve relevant context (pass pre-computed embedding to avoid re-embedding)
+      const chunks = await retrieveContext(content, queryEmbedding)
       const context = formatContext(chunks)
       const sources: MessageSource[] = extractSources(chunks)
 

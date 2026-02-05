@@ -4,16 +4,19 @@
 
 // Model identifiers
 export const EMBEDDING_MODEL = 'Xenova/all-MiniLM-L6-v2'
-// Using f32 model for broader WebGPU compatibility (f16 requires shader-f16 extension)
-export const LLM_MODEL = 'SmolLM2-360M-Instruct-q0f32-MLC'
+// Using 4-bit quantized model for faster inference with broad WebGPU compatibility
+export const LLM_MODEL = 'SmolLM2-360M-Instruct-q4f32_1-MLC'
 
 // Retrieval settings
-export const TOP_K_CHUNKS = 3
+export const TOP_K_CHUNKS = 2
 export const SIMILARITY_THRESHOLD = 0.2
 
 // Generation settings
-export const MAX_TOKENS = 450
-export const TEMPERATURE = 0.4
+export const MAX_TOKENS = 200
+export const TEMPERATURE = 0.3
+
+// LLM context settings (smaller = faster prefill)
+export const CONTEXT_WINDOW_SIZE = 1024
 
 // IndexedDB settings
 export const DB_NAME = 'beri-db'

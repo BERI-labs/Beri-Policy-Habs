@@ -37,11 +37,12 @@ export function cosineSimilarity(a: number[], b: number[]): number {
 /**
  * Retrieve the most relevant chunks for a query
  * @param query - The user's question
+ * @param precomputedEmbedding - Optional pre-computed embedding to avoid re-embedding
  * @returns Top-K most relevant chunks with scores
  */
-export async function retrieveContext(query: string): Promise<ScoredChunk[]> {
-  // Get query embedding
-  const queryEmbedding = await embed(query)
+export async function retrieveContext(query: string, precomputedEmbedding?: number[]): Promise<ScoredChunk[]> {
+  // Use pre-computed embedding if provided, otherwise generate one
+  const queryEmbedding = precomputedEmbedding || await embed(query)
 
   // Get all chunks from storage
   const chunks = await getAllChunks()

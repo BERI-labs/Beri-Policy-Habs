@@ -42,8 +42,9 @@ function markEmbeddingsRegenerated(): void {
 }
 
 /**
- * Load chunks from bundled JSON into IndexedDB with real embeddings
- * @param generateEmbedding - Function to generate embeddings using the model
+ * Load chunks from bundled JSON into IndexedDB
+ * Uses pre-computed embeddings from JSON if available, otherwise generates them
+ * @param generateEmbedding - Function to generate embeddings (fallback if not in JSON)
  * @param onProgress - Progress callback
  */
 export async function loadChunksFromJSON(
@@ -57,6 +58,7 @@ export async function loadChunksFromJSON(
   const rawChunks = chunksData as Array<{
     id: string
     content: string
+    embedding?: number[]
     metadata: { source: string; section: string; chunkIndex: number }
   }>
 
@@ -65,14 +67,14 @@ export async function loadChunksFromJSON(
   await clearTx.objectStore(CHUNKS_STORE).clear()
   await clearTx.done
 
-  // Generate real embeddings for each chunk
+  // Load chunks, using pre-computed embeddings when available
   const total = rawChunks.length
   for (let i = 0; i < rawChunks.length; i++) {
     const raw = rawChunks[i]
     onProgress?.(i + 1, total)
 
-    // Generate embedding using the actual model
-    const embedding = await generateEmbedding(raw.content)
+    // Use pre-computed embedding if available, otherwise generate one
+    const embedding = raw.embedding || await generateEmbedding(raw.content)
 
     const chunk: Chunk = {
       id: raw.id,

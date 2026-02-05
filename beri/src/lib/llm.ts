@@ -1,12 +1,13 @@
 /**
- * LLM layer using WebLLM
+ * LLM layer using WebLLM with Web Worker for non-blocking inference
  */
 
 import * as webllm from '@mlc-ai/web-llm'
-import { LLM_MODEL, MAX_TOKENS, TEMPERATURE } from './constants'
+import { LLM_MODEL, MAX_TOKENS, TEMPERATURE, CONTEXT_WINDOW_SIZE } from './constants'
 import type { ProgressCallback } from '@/types'
 
-let engine: webllm.MLCEngine | null = null
+// Engine type that works with both regular and worker-based engines
+let engine: webllm.MLCEngineInterface | null = null
 
 /**
  * Check if WebGPU is available
@@ -26,7 +27,7 @@ export async function checkWebGPU(): Promise<boolean> {
 }
 
 /**
- * Initialise the LLM engine
+ * Initialise the LLM engine using a Web Worker for non-blocking UI
  * @param onProgress - Progress callback for loading updates
  */
 export async function initLLM(onProgress?: ProgressCallback): Promise<void> {
@@ -37,11 +38,41 @@ export async function initLLM(onProgress?: ProgressCallback): Promise<void> {
     onProgress?.(progress, report.text)
   }
 
-  engine = new webllm.MLCEngine({
-    initProgressCallback,
-  })
+  try {
+    // Try to create Web Worker engine for non-blocking UI
+    const worker = new Worker(
+      new URL('./llm.worker.ts', import.meta.url),
+      { type: 'module' }
+    )
 
-  await engine.reload(LLM_MODEL)
+    engine = await webllm.CreateWebWorkerMLCEngine(
+      worker,
+      LLM_MODEL,
+      {
+        initProgressCallback,
+        logLevel: 'SILENT',
+      },
+      {
+        context_window_size: CONTEXT_WINDOW_SIZE,
+      }
+    )
+
+    console.log('LLM initialised with Web Worker')
+  } catch (workerError) {
+    // Fallback to main thread engine if worker fails
+    console.warn('Web Worker failed, falling back to main thread:', workerError)
+
+    engine = new webllm.MLCEngine({
+      initProgressCallback,
+      logLevel: 'SILENT',
+    })
+
+    await engine.reload(LLM_MODEL, {
+      context_window_size: CONTEXT_WINDOW_SIZE,
+    })
+
+    console.log('LLM initialised on main thread (fallback)')
+  }
 
   onProgress?.(100, 'Language model ready')
 }
